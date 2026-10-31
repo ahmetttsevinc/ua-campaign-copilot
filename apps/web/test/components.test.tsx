@@ -41,6 +41,20 @@ describe('DataTable', () => {
     expect(within(rows[0] as HTMLElement).getAllByTestId('evidence-link').map((e) => e.dataset.step)).toEqual(['2', '4']);
   });
 
+  it('shows a one-line cause headline and expands to the full explanation', () => {
+    render(
+      <EvidenceProvider>
+        <DataTable findings={[{ ...finding, likelyCause: 'Click injection fraud. 30% suspicious installs and a 5 s median CTIT.' }]} />
+      </EvidenceProvider>,
+    );
+    const row = screen.getByTestId('finding-row');
+    expect(row.textContent).toContain('Click injection fraud.');
+    expect(row.textContent).not.toContain('5 s median CTIT');
+    fireEvent.click(screen.getByTestId('finding-expand'));
+    expect(row.textContent).toContain('5 s median CTIT');
+    expect(screen.getByTestId('finding-expand').getAttribute('aria-expanded')).toBe('true');
+  });
+
   it('says so when there is nothing to report', () => {
     render(
       <EvidenceProvider>

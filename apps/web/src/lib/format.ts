@@ -81,15 +81,32 @@ export function formatTokens(n: number): string {
   return n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n);
 }
 
-// Plain-language names, plus which system each tool reads: the fragmented sources made visible.
-export const TOOL_LABELS: Record<string, { label: string; source: string }> = {
-  list_campaigns: { label: 'Listed campaigns', source: 'Internal database' },
-  get_campaign_metrics: { label: 'Read campaign metrics', source: 'Internal database' },
-  compare_campaign_periods: { label: 'Compared two periods', source: 'Internal database' },
-  resolve_campaign_id: { label: 'Matched campaign IDs', source: 'ID mapping table' },
-  get_attribution_data: { label: 'Fetched attribution data', source: 'Attribution provider API' },
-  get_fraud_signals: { label: 'Checked fraud signals', source: 'Fraud vendor export' },
+export type SourceKind = 'internal' | 'attribution' | 'fraud' | 'mapping';
+
+export const SOURCE_LABELS: Record<SourceKind, string> = {
+  internal: 'Internal DB',
+  attribution: 'Attribution API',
+  fraud: 'Fraud vendor',
+  mapping: 'ID mapping',
 };
+
+// Plain-language names, plus which system each tool reads: the fragmented sources made visible.
+export const TOOL_LABELS: Record<string, { label: string; source: string; kind: SourceKind }> = {
+  list_campaigns: { label: 'Listed campaigns', source: 'Internal database', kind: 'internal' },
+  get_campaign_metrics: { label: 'Read campaign metrics', source: 'Internal database', kind: 'internal' },
+  compare_campaign_periods: { label: 'Compared two periods', source: 'Internal database', kind: 'internal' },
+  resolve_campaign_id: { label: 'Matched campaign IDs', source: 'ID mapping table', kind: 'mapping' },
+  get_attribution_data: { label: 'Fetched attribution data', source: 'Attribution provider API', kind: 'attribution' },
+  get_fraud_signals: { label: 'Checked fraud signals', source: 'Fraud vendor export', kind: 'fraud' },
+};
+
+/** First sentence of a cause: a one-line headline; the full text stays one click away. */
+export function causeHeadline(cause: string): { headline: string; hasMore: boolean } {
+  const trimmed = cause.trim();
+  const m = /^(.+?[.;:])(\s|$)/.exec(trimmed);
+  const headline = (m?.[1] ?? trimmed).replace(/[;:]$/, '');
+  return { headline, hasMore: headline.length < trimmed.length - 1 };
+}
 
 export const toolLabel = (name: string | null) => (name ? (TOOL_LABELS[name]?.label ?? name) : 'Tool');
 

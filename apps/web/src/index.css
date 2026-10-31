@@ -1,65 +1,138 @@
 @import 'tailwindcss';
 @import '@fontsource-variable/public-sans';
-@import '@fontsource-variable/source-serif-4';
+@import '@fontsource-variable/jetbrains-mono';
 
 /*
- * Tokens. Cool "ledger" greys and slate ink; cobalt is reserved for provenance (links between
- * a number and the step that produced it), red/green only ever mean bad/good for the metric.
+ * Design tokens. Raw values live in CSS variables so dark mode is one media query.
+ * Accent = provenance and primary action only. neg/pos/warn = meaning only, always paired
+ * with an icon or text.
  */
-@theme {
-  --color-paper: #eef1f4;
-  --color-surface: #ffffff;
-  --color-ink: #16202c;
-  --color-muted: #5b6878;
-  --color-rule: #d5dce3;
-  --color-cobalt: #2f5bea;
-  --color-cobalt-wash: #e6ecfd;
-  --color-bad: #b42318;
-  --color-bad-wash: #fdecea;
-  --color-good: #1f7a4d;
-  --color-good-wash: #e7f4ec;
-  --color-caution: #8a6100;
-  --color-caution-wash: #fdf3d8;
+:root {
+  --bg: #f5f6f8;
+  --surface: #ffffff;
+  --sunken: #f0f2f5;
+  --ink: #18212c;
+  --muted: #5a6676;
+  --faint: #8b95a2;
+  --rule: #e2e6eb;
+  --rule-strong: #cdd4dc;
+  --accent: #3552d8;
+  --accent-ink: #ffffff;
+  --accent-wash: #ecf0fd;
+  --neg: #bf3328;
+  --neg-wash: #fdeeec;
+  --pos: #1b7a48;
+  --pos-wash: #e7f4ed;
+  --warn: #8f6200;
+  --warn-wash: #fdf4da;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0e1318;
+    --surface: #141a21;
+    --sunken: #1a222b;
+    --ink: #e5eaf0;
+    --muted: #9ba7b5;
+    --faint: #6e7a89;
+    --rule: #242e39;
+    --rule-strong: #33404f;
+    --accent: #7d9bff;
+    --accent-ink: #0e1318;
+    --accent-wash: #1b2542;
+    --neg: #ff8178;
+    --neg-wash: #2e1a1a;
+    --pos: #56cf90;
+    --pos-wash: #13291e;
+    --warn: #e5b54a;
+    --warn-wash: #2b2411;
+    color-scheme: dark;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-sunken: var(--sunken);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-rule: var(--rule);
+  --color-rule-strong: var(--rule-strong);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-wash: var(--accent-wash);
+  --color-neg: var(--neg);
+  --color-neg-wash: var(--neg-wash);
+  --color-pos: var(--pos);
+  --color-pos-wash: var(--pos-wash);
+  --color-warn: var(--warn);
+  --color-warn-wash: var(--warn-wash);
 
   --font-sans: 'Public Sans Variable', system-ui, sans-serif;
-  --font-serif: 'Source Serif 4 Variable', Georgia, serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
 }
 
 html {
   font-family: var(--font-sans);
-  color: var(--color-ink);
-  background: var(--color-paper);
+  font-size: 14px;
+  color: var(--ink);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Numbers line up in columns everywhere. */
-.tabular {
+/* Every number, id, cost and duration: monospace with tabular figures so columns line up. */
+.num {
+  font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
+  font-feature-settings: 'zero' 0;
+  letter-spacing: -0.01em;
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-cobalt);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
+  border-radius: 3px;
 }
 
-@keyframes working {
-  0%, 100% { opacity: 0.35; }
-  50% { opacity: 1; }
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
-.working-dot {
-  animation: working 1.2s ease-in-out infinite;
+.spin {
+  animation: spin 0.9s linear infinite;
 }
 
-/* The provenance flash: the one deliberate motion, answering a click on an evidence link. */
+/* New trace steps slide in as SSE events arrive. */
+@keyframes step-enter {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+.step-enter {
+  animation: step-enter 0.22s ease-out;
+}
+
+/* The provenance flash when an evidence chip is clicked. */
 @keyframes provenance {
-  from { background-color: var(--color-cobalt-wash); }
-  to { background-color: transparent; }
+  from { box-shadow: inset 0 0 0 2px var(--accent); background-color: var(--accent-wash); }
+  to { box-shadow: inset 0 0 0 0 transparent; background-color: transparent; }
 }
 .provenance-flash {
-  animation: provenance 1.6s ease-out;
+  animation: provenance 1.8s ease-out;
+}
+
+@keyframes shimmer {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+.skeleton {
+  background: var(--sunken);
+  border-radius: 4px;
+  animation: shimmer 1.4s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .working-dot, .provenance-flash {
+  .spin, .step-enter, .provenance-flash, .skeleton {
     animation: none;
   }
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { changeSentiment, formatChange, formatMetric, stepTitle } from '../src/lib/format';
+import { causeHeadline, changeSentiment, formatChange, formatMetric, stepTitle } from '../src/lib/format';
 import { llmStep, step } from './fixtures';
 
 describe('formatMetric', () => {
@@ -44,5 +44,13 @@ describe('stepTitle', () => {
     );
     expect(stepTitle(llmStep(5, { stopReason: 'end_turn', toolCalls: [] }))).toBe('Model wrote the answer');
     expect(stepTitle(step(4, { type: 'repair', toolName: null }))).toBe('Asked the model to fix its answer format');
+  });
+});
+
+describe('causeHeadline', () => {
+  it('takes the first sentence without breaking on decimals', () => {
+    expect(causeHeadline('Revenue fell 49% (0.93 to 0.47). Fraud flags are high.')).toEqual({ headline: 'Revenue fell 49% (0.93 to 0.47).', hasMore: true });
+    expect(causeHeadline('Spend doubled; installs grew 10%')).toEqual({ headline: 'Spend doubled', hasMore: true });
+    expect(causeHeadline('Click injection fraud')).toEqual({ headline: 'Click injection fraud', hasMore: false });
   });
 });

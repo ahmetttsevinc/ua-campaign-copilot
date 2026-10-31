@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.env
+*.log
+evals/reports/*
+!evals/reports/.gitkeep
+apps/api/data/*.csv
+apps/api/data/*.json
+!apps/api/data/.gitkeep
+playwright-report/
+test-results/

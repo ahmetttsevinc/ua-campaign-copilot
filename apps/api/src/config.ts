@@ -64,7 +64,8 @@ type ParsedEnv = z.infer<typeof EnvSchema>;
 export type Config = ParsedEnv & { ATTRIBUTION_BASE_URL: string };
 
 export function parseConfig(env: NodeJS.ProcessEnv): Config {
-  const result = EnvSchema.safeParse(env);
+  // Hosting platforms (Render, Railway, Fly) tell the app which port to bind via PORT.
+  const result = EnvSchema.safeParse(env.API_PORT === undefined && env.PORT ? { ...env, API_PORT: env.PORT } : env);
   if (!result.success) {
     const lines = result.error.issues.map((i) => `  - ${i.path.join('.') || '(root)'}: ${i.message}`);
     throw new Error(`Invalid configuration:\n${lines.join('\n')}\nSee .env.example.`);

@@ -42,6 +42,18 @@ API keys in `.env` are optional. If the server has no key for the selected model
 So you can share the app and hand someone a temporary key for a live test. A key in `.env` still takes over when the
 field is left empty and stays out of the browser entirely.
 
+### Deployment
+
+- **API and database on Render.** [`render.yaml`](render.yaml) is a Blueprint for the API (Node web service) and a Postgres
+  database. On every boot the API runs migrations and the deterministic seed (which also writes the vendor files), then
+  starts. No API keys are configured on purpose: the app is public, so users enter a key in the app.
+- **Web app on Vercel.** [`vercel.json`](vercel.json) builds `apps/web` and rewrites `/api/*` to the Render API, so the
+  browser only ever talks to one origin (no CORS).
+
+To deploy your own copy: in Render choose **New > Blueprint** and select this repository; then point the rewrite
+destination in `vercel.json` at the Render URL and import the repository in Vercel (or run `npx vercel --prod`).
+Render's free instances sleep when idle, so open the app once a minute before a demo.
+
 ## Architecture
 
 ```mermaid

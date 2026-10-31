@@ -1,0 +1,33 @@
+# Render Blueprint: the API (Fastify + agent) and its Postgres database.
+# The web app is deployed separately on Vercel and proxies /api/* here (see vercel.json).
+databases:
+  - name: ua-copilot-db
+    plan: free
+    databaseName: copilot
+    user: copilot
+
+services:
+  - type: web
+    name: ua-copilot-api
+    runtime: node
+    plan: free
+    region: frankfurt
+    buildCommand: corepack enable && pnpm install --frozen-lockfile
+    # Migrations and the deterministic seed run on every boot: the seed also writes the vendor
+    # files (fraud CSV, attribution data), and Render's disk does not persist between deploys.
+    startCommand: pnpm --filter @copilot/api start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ua-copilot-db
+          property: connectionString
+      # No API keys on purpose: the app is public, so users enter a temporary key in the UI.
+      - key: LLM_PROVIDER
+        value: anthropic
+      - key: ANTHROPIC_MODEL
+        value: claude-haiku-5-5
+      - key: NEBIUS_MODEL
+        value: Qwen/Qwen3-235B-A22B-Instruct-2507

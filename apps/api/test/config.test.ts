@@ -14,6 +14,11 @@ describe('parseConfig', () => {
     expect(c.KILL_AFTER_STEP).toBeUndefined();
   });
 
+  it('binds to PORT when the host provides one and API_PORT is unset', () => {
+    expect(parseConfig({ ...base, LLM_PROVIDER: 'fake', PORT: '10000' }).API_PORT).toBe(10000);
+    expect(parseConfig({ ...base, LLM_PROVIDER: 'fake', PORT: '10000', API_PORT: '3001' }).API_PORT).toBe(3001);
+  });
+
   it('treats empty strings from .env as unset', () => {
     const c = parseConfig({ ...base, LLM_PROVIDER: 'fake', KILL_AFTER_STEP: '', NEBIUS_API_KEY: '', NEBIUS_MODEL: '  ' });
     expect(c.KILL_AFTER_STEP).toBeUndefined();

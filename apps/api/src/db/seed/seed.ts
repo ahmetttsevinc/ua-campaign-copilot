@@ -55,10 +55,12 @@ export async function seed(db: Db, dataDir = DEFAULT_DATA_DIR): Promise<void> {
 if (import.meta.url === `file://${process.argv[1]}`) {
   const url = process.env.DATABASE_URL;
   if (!url) throw new Error('DATABASE_URL is not set (copy .env.example to .env)');
+  // Same DATA_DIR as the server reads from (config.ts), so the vendor files always line up.
+  const dataDir = process.env.DATA_DIR?.trim() || DEFAULT_DATA_DIR;
   const { db, sql } = createDb(url);
   try {
-    await seed(db);
-    console.log(`Seeded ${CAMPAIGNS.length} campaigns; files written to ${DEFAULT_DATA_DIR}`);
+    await seed(db, dataDir);
+    console.log(`Seeded ${CAMPAIGNS.length} campaigns; files written to ${dataDir}`);
   } finally {
     await sql.end();
   }

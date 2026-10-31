@@ -48,7 +48,9 @@ field is left empty and stays out of the browser entirely.
   database. On every boot the API runs migrations and the deterministic seed (which also writes the vendor files), then
   starts. No API keys are configured on purpose: the app is public, so users enter a key in the app.
 - **Web app on Vercel.** [`vercel.json`](vercel.json) builds `apps/web` and rewrites `/api/*` to the Render API, so the
-  browser only ever talks to one origin (no CORS).
+  browser only ever talks to one origin (no CORS). The same config also lives in
+  [`apps/web/vercel.json`](apps/web/vercel.json), so it works whether the Vercel project's Root Directory is the
+  repository root or `apps/web`.
 
 To deploy your own copy: in Render choose **New > Blueprint** and select this repository; then point the rewrite
 destination in `vercel.json` at the Render URL and import the repository in Vercel (or run `npx vercel --prod`).
